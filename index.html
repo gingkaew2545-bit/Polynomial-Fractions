@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ห้องทดลองเศษส่วนพหุนาม | คณิตศาสตร์ ม.3</title>
+<style>
+:root{--navy:#12345a;--blue:#2563eb;--sky:#eaf3ff;--ink:#172033;--muted:#617087;--line:#dbe4f0;--green:#16845b;--orange:#c56b12}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f7fb;color:var(--ink);font-family:Tahoma,"Noto Sans Thai",sans-serif;line-height:1.65}
+header{background:linear-gradient(120deg,#102d50,#2364a8);color:white;padding:30px 20px}
+.wrap{max-width:1080px;margin:auto;padding:0 18px}
+header h1{margin:0 0 6px;font-size:clamp(25px,4vw,36px)}
+header p{margin:0;color:#e3efff}
+main{padding:22px 0 50px}
+.card{background:white;border:1px solid var(--line);border-radius:18px;padding:22px;margin:0 0 18px;box-shadow:0 6px 20px rgba(20,48,82,.05)}
+h2{font-size:21px;color:var(--navy);margin:0 0 12px}
+h3{font-size:17px;margin:0 0 8px;color:var(--navy)}
+.tag{display:inline-block;background:#e8f1ff;color:#1d56a0;border-radius:99px;padding:3px 11px;font-size:13px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.formula{font-size:clamp(22px,4vw,30px);font-weight:700;text-align:center;background:#f1f6ff;border-radius:14px;padding:18px;margin:12px 0;color:#163d70}
+.controls{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.control{flex:1;min-width:220px}
+input[type=range]{width:100%;accent-color:var(--blue)}
+input[type=number]{width:85px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px}
+button{border:0;border-radius:10px;padding:10px 16px;background:var(--blue);color:white;font-weight:700;cursor:pointer}
+button.secondary{background:#e8eef7;color:#24405f}
+button:hover{filter:brightness(.96)}
+.note{padding:12px 14px;border-left:4px solid var(--blue);background:#f3f7ff;border-radius:8px}
+.good{color:var(--green);font-weight:700}
+.warn{color:#a34d08;font-weight:700}
+canvas{width:100%;height:340px;border:1px solid var(--line);border-radius:12px;background:#fff;display:block}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin:8px 0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.step{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:14px}
+.question{padding:15px;border:1px solid var(--line);border-radius:12px;margin:12px 0}
+.question label{display:block;margin:7px 0;cursor:pointer}
+.feedback{margin-top:8px;font-weight:700}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:10px}
+@media(max-width:720px){.grid,.steps{grid-template-columns:1fr}.card{padding:17px}canvas{height:280px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <span class="tag" style="background:#dcecff;color:#153b68">สื่อการเรียนรู้แบบโต้ตอบ • คณิตศาสตร์ ม.3</span>
+  <h1>ห้องทดลองเศษส่วนพหุนาม</h1>
+  <p>ทดลองปรับค่า สังเกตกราฟ และค้นพบว่าเหตุใดการตัดตัวประกอบจึงต้องระวังค่า x ที่ทำให้ส่วนเป็นศูนย์</p>
+</div></header>
+<main class="wrap">
+<section class="card">
+  <h2>เป้าหมายการเรียนรู้</h2>
+  <div class="steps">
+    <div class="step"><h3>ทดลอง</h3>ปรับค่าตัวแปร a และสังเกตการเปลี่ยนแปลงของนิพจน์</div>
+    <div class="step"><h3>สังเกต</h3>เปรียบเทียบค่าของเศษส่วนพหุนามก่อนและหลังการแยกตัวประกอบ</div>
+    <div class="step"><h3>วิเคราะห์</h3>อธิบายค่าที่ห้ามใช้และจุดที่ขาดหายไปบนกราฟ</div>
+  </div>
+</section>
+
+<section class="card">
+  <span class="tag">กิจกรรมที่ 1 • ทดลองปรับค่า</span>
+  <h2>เศษส่วนพหุนามเปลี่ยนไปอย่างไร?</h2>
+  <p>พิจารณาเศษส่วนพหุนามรูปแบบนี้ แล้วปรับค่า <b>a</b> ด้วยแถบเลื่อน</p>
+  <div class="formula" id="mainFormula">(x² − 9) / (x − 3)</div>
+  <div class="controls">
+    <div class="control">
+      <label for="aRange"><b>กำหนดค่า a:</b> <strong id="aValue">3</strong></label>
+      <input id="aRange" type="range" min="-5" max="5" step="1" value="3">
+      <small>เลื่อนเพื่อเปลี่ยนจำนวน a ตั้งแต่ −5 ถึง 5</small>
+    </div>
+    <div class="control">
+      <label for="xInput"><b>ทดลองแทนค่า x:</b></label><br>
+      <input id="xInput" type="number" value="1" step="0.5">
+      <span id="xResult" style="margin-left:8px"></span>
+    </div>
+  </div>
+  <div class="grid" style="margin-top:16px">
+    <div class="note">
+      <b>แยกตัวประกอบ</b>
+      <div id="factorText" class="formula" style="font-size:20px;margin:8px 0">(x − 3)(x + 3) / (x − 3)</div>
+      <div id="simplifyText">= x + 3 เมื่อ x ≠ 3</div>
+    </div>
+    <div class="note">
+      <b>ข้อควรสังเกต</b>
+      <p id="domainText" style="margin:7px 0">ตัวส่วนเป็นศูนย์เมื่อ x = 3 ดังนั้น x ≠ 3</p>
+      <p class="warn" style="margin:0">แม้ตัดตัวประกอบได้ แต่ค่า x ที่ทำให้ตัวส่วนเดิมเป็นศูนย์ยังใช้ไม่ได้</p>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <span class="tag">กิจกรรมที่ 2 • สังเกตกราฟแบบเรียลไทม์</span>
+  <h2>กราฟก่อนและหลังการตัดตัวประกอบ</h2>
+  <p>เส้นกราฟแสดงความสัมพันธ์ y = x + a ส่วนวงกลมโปร่งแสดงตำแหน่งที่ขาดหายไป เพราะเศษส่วนเดิมหาค่าไม่ได้เมื่อ x = a</p>
+  <div class="legend">
+    <span><i class="dot" style="background:#2563eb"></i>กราฟ y = x + a</span>
+    <span><i class="dot" style="background:#e07a22"></i>จุดที่ไม่กำหนด (รูโปร่ง)</span>
+  </div>
+  <canvas id="graph" width="900" height="380" aria-label="กราฟเศษส่วนพหุนาม"></canvas>
+  <p id="graphCaption" class="note">เมื่อ a = 3 กราฟเป็นเส้นตรง y = x + 3 แต่เว้นจุด (3, 6) ไว้</p>
+</section>
+
+<section class="card">
+  <span class="tag">สรุปความรู้</span>
+  <h2>สิ่งที่ค้นพบ</h2>
+  <ol>
+    <li>ใช้ผลต่างกำลังสอง: <b>x² − a² = (x − a)(x + a)</b></li>
+    <li>ดังนั้น <b>(x² − a²)/(x − a) = x + a</b> เมื่อ <b>x ≠ a</b></li>
+    <li>การตัดตัวประกอบไม่ทำให้เงื่อนไขของตัวส่วนเดิมหายไป จึงต้องระบุค่าที่ห้ามใช้เสมอ</li>
+  </ol>
+  <div class="note"><b>จำไว้:</b> เศษส่วนพหุนามต้องมีตัวส่วนไม่เท่ากับศูนย์</div>
+</section>
+
+<section class="card" id="quiz">
+  <span class="tag">ประเมินความเข้าใจ • 3 ข้อ</span>
+  <h2>ลองตอบคำถามท้ายกิจกรรม</h2>
+  <div class="question" data-answer="b">
+    <b>1. เศษส่วนพหุนาม (x² − 16)/(x − 4) มีค่าเท่ากับข้อใด เมื่อ x ≠ 4?</b>
+    <label><input type="radio" name="q1" value="a"> x − 4</label>
+    <label><input type="radio" name="q1" value="b"> x + 4</label>
+    <label><input type="radio" name="q1" value="c"> x² + 4</label>
+    <div class="feedback" id="f1"></div>
+  </div>
+  <div class="question" data-answer="c">
+    <b>2. จากเศษส่วน (x² − 25)/(x − 5) ค่าใดเป็นค่าที่ห้ามใช้?</b>
+    <label><input type="radio" name="q2" value="a"> x = −5</label>
+    <label><input type="radio" name="q2" value="b"> x = 0</label>
+    <label><input type="radio" name="q2" value="c"> x = 5</label>
+    <div class="feedback" id="f2"></div>
+  </div>
+  <div class="question" data-answer="a">
+    <b>3. เหตุใดกราฟของ (x² − 9)/(x − 3) จึงมีจุดขาดหายที่ x = 3?</b>
+    <label><input type="radio" name="q3" value="a"> เพราะตัวส่วนมีค่าเป็นศูนย์</label>
+    <label><input type="radio" name="q3" value="b"> เพราะตัวเศษมีค่าเป็นศูนย์เท่านั้น</label>
+    <label><input type="radio" name="q3" value="c"> เพราะกราฟเป็นเส้นตรง</label>
+    <div class="feedback" id="f3"></div>
+  </div>
+  <button id="checkBtn">ตรวจคำตอบ</button>
+  <button class="secondary" id="showBtn">แสดงเฉลย</button>
+  <button class="secondary" id="resetBtn">เริ่มทำใหม่</button>
+  <p id="score" aria-live="polite" style="font-weight:700;color:var(--navy)"></p>
+  <div id="answers" class="note" hidden>
+    <b>เฉลยพร้อมเหตุผล</b>
+    <ol>
+      <li><b>ข้อ 1: x + 4</b> เพราะ x² − 16 = (x − 4)(x + 4) แล้วตัดตัวประกอบร่วมได้ เมื่อ x ≠ 4</li>
+      <li><b>ข้อ 2: x = 5</b> เพราะทำให้ตัวส่วน x − 5 เป็นศูนย์</li>
+      <li><b>ข้อ 3: ตัวส่วนมีค่าเป็นศูนย์</b> เมื่อ x = 3 เศษส่วนเดิมจึงไม่มีนิยาม แม้จะย่อรูปได้เป็น x + 3 ก็ตาม</li>
+    </ol>
+  </div>
+</section>
+<footer>สื่อประกอบการเรียนรู้คณิตศาสตร์ ระดับชั้นมัธยมศึกษาปีที่ 3</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const range=$('aRange'), xInput=$('xInput'), canvas=$('graph'), ctx=canvas.getContext('2d');
+function fmt(n){return n<0?'−'+Math.abs(n):String(n)}
+function update(){
+ const a=Number(range.value), x=Number(xInput.value);
+ $('aValue').textContent=a;
+ $('mainFormula').textContent=`(x² − ${a*a}) / (x − ${a})`;
+ $('factorText').textContent=`(x − (${a}))(x + (${a})) / (x − (${a}))`;
+ $('simplifyText').textContent=`= x + (${a}) เมื่อ x ≠ ${a}`;
+ $('domainText').textContent=`ตัวส่วนเป็นศูนย์เมื่อ x = ${a} ดังนั้น x ≠ ${a}`;
+ if(xInput.value.trim()==='' || !Number.isFinite(x)){
+   $('xResult').textContent='กรุณากรอกค่า x'; $('xResult').className='warn';
+ }else if(Math.abs(x-a)<1e-10){
+   $('xResult').textContent='ใช้ค่านี้ไม่ได้ เพราะตัวส่วนเป็นศูนย์'; $('xResult').className='warn';
+ }else{
+   $('xResult').textContent=`ค่าเศษส่วน = ${(x+a).toFixed(3).replace(/\.?0+$/,'')}`; $('xResult').className='good';
+ }
+ $('graphCaption').textContent=`เมื่อ a = ${a} กราฟเป็นเส้นตรง y = x + (${a}) แต่เว้นจุด (${a}, ${2*a}) ไว้`;
+ draw(a);
+}
+function draw(a){
+ const w=canvas.width,h=canvas.height, xmin=-8,xmax=8,ymin=-8,ymax=8;
+ ctx.clearRect(0,0,w,h);
+ const X=x=>((x-xmin)/(xmax-xmin))*w, Y=y=>h-((y-ymin)/(ymax-ymin))*h;
+ ctx.lineWidth=1;ctx.strokeStyle='#e7edf5';
+ for(let i=xmin;i<=xmax;i++){ctx.beginPath();ctx.moveTo(X(i),0);ctx.lineTo(X(i),h);ctx.stroke()}
+ for(let j=ymin;j<=ymax;j++){ctx.beginPath();ctx.moveTo(0,Y(j));ctx.lineTo(w,Y(j));ctx.stroke()}
+ ctx.strokeStyle='#65758b';ctx.lineWidth=1.7;
+ ctx.beginPath();ctx.moveTo(X(xmin),Y(0));ctx.lineTo(X(xmax),Y(0));ctx.stroke();
+ ctx.beginPath();ctx.moveTo(X(0),Y(ymin));ctx.lineTo(X(0),Y(ymax));ctx.stroke();
+ ctx.fillStyle='#526174';ctx.font='13px Tahoma';ctx.textAlign='center';
+ for(let i=xmin;i<=xmax;i+=2)ctx.fillText(i,X(i),Y(0)+18);
+ ctx.textAlign='right';for(let j=ymin;j<=ymax;j+=2)if(j!==0)ctx.fillText(j,X(0)-8,Y(j)+4);
+ ctx.strokeStyle='#2563eb';ctx.lineWidth=3;ctx.beginPath();
+ let started=false;
+ for(let px=0;px<=w;px++){
+   const xv=xmin+(px/w)*(xmax-xmin), yv=xv+a;
+   if(yv<ymin||yv>ymax){started=false;continue}
+   if(!started){ctx.moveTo(px,Y(yv));started=true}else ctx.lineTo(px,Y(yv));
+ }
+ ctx.stroke();
+ const hy=2*a;
+ if(a>=xmin&&a<=xmax&&hy>=ymin&&hy<=ymax){
+   ctx.beginPath();ctx.arc(X(a),Y(hy),7,0,Math.PI*2);
+   ctx.fillStyle='white';ctx.fill();ctx.strokeStyle='#e07a22';ctx.lineWidth=3;ctx.stroke();
+   ctx.fillStyle='#a6530a';ctx.font='bold 13px Tahoma';ctx.textAlign='left';
+   ctx.fillText(`(${a}, ${hy}) ไม่กำหนด`,Math.min(X(a)+12,w-150),Math.max(18,Y(hy)-12));
+ }
+}
+range.addEventListener('input',update);xInput.addEventListener('input',update);
+const correct={q1:'b',q2:'c',q3:'a'};
+$('checkBtn').addEventListener('click',()=>{
+ let score=0;
+ for(let i=1;i<=3;i++){
+  const selected=document.querySelector(`input[name=q${i}]:checked`);
+  const ok=selected&&selected.value===correct['q'+i];
+  if(ok)score++;
+  $('f'+i).textContent=selected?(ok?'ถูกต้อง! เก่งมาก':'ยังไม่ถูก ลองทบทวนแล้วดูเฉลยได้'):'กรุณาเลือกคำตอบ';
+  $('f'+i).style.color=ok?'#16845b':'#b45309';
+ }
+ $('score').textContent=`คุณได้ ${score} / 3 คะแนน`;
+});
+$('showBtn').addEventListener('click',()=>{$('answers').hidden=!$('answers').hidden});
+$('resetBtn').addEventListener('click',()=>{
+ document.querySelectorAll('input[type=radio]').forEach(el=>el.checked=false);
+ for(let i=1;i<=3;i++)$('f'+i).textContent='';
+ $('score').textContent='';$('answers').hidden=true;
+});
+update();
+</script>
+</body>
+</html>
